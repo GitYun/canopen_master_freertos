@@ -189,7 +189,7 @@ int __io_putchar(int ch)
     return ch;
 }
 
-int __io_getchar(FILE *f)
+int __io_getchar(void)
 {
     while(USART_GetFlagStatus(DEBUG_COM, USART_FLAG_RXNE) == RESET)
     {

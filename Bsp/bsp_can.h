@@ -25,7 +25,7 @@
 #define CAN_GPIO_PORT             GPIOB                    //同一个PORT
 #define CAN_RX_IRQn               USB_LP_CAN1_RX0_IRQn
 #define CAN_RX_Priority           10                       //中断函数接口(见stm32f10x_it.c)
-#define CAN_RX_IRQHandler         USB_LP_CAN1_RX0_IRQHandler
+#define CAN_RX_IRQHandler         USB_LP_CAN_RX0_IRQHandler
 #else /* 从站板卡定义 */
 #define CANx                      CAN1
 #define CAN_CLK                   RCC_APB1Periph_CAN1

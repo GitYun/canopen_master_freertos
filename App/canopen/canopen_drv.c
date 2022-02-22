@@ -171,6 +171,11 @@ static void CANRcv_Task(void *pvParameters)
       TIM_ITConfig(CANOPEN_TIMx, TIM_IT_Update, DISABLE);
       canDispatch(&TestMaster_Data, &msg);       //调用协议相关接口
       TIM_ITConfig(CANOPEN_TIMx, TIM_IT_Update, ENABLE);
+#if 0
+      printf("Recv id=%04x dlc=%d : %d %d %d %d %d %d %d %d", msg.cob_id, msg.len,
+             msg.data[0], msg.data[1], msg.data[2], msg.data[3],
+             msg.data[4], msg.data[5], msg.data[6], msg.data[7]);
+#endif
     }
   }
 }

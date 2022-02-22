@@ -34,6 +34,7 @@ static void CANOpen_App_Task(void *pvParameters);
 
 static UNS32 rpdo1_data_handler(CO_Data *d, const indextable *table, uint8_t b_subindex);
 static UNS32 rsdo_param_handler(CO_Data *d, const indextable *table, uint8_t b_subindex);
+static void sdo_xfer_callback(CO_Data* d, UNS8 nodeId);
 
 /************************************************
 函数名称 ： CANOpen_App_Init
@@ -80,23 +81,67 @@ void CANOpen_App_Init(void)
 *************************************************/
 static void CANOpen_App_Task(void *pvParameters)
 {
-  int cmd = 0;
-  int cmd_num = 0;
 
-  unsigned char nodeID = 0x01;                   //节点ID
+  UNS8 master_node_id = 0x00; // 主站节点ID
+  UNS8 slave_node_id = 0x01;  // 从站节点ID
 
-  setNodeId(&TestMaster_Data, nodeID);
+  setNodeId(&TestMaster_Data, master_node_id);
   setState(&TestMaster_Data, Initialisation);
   setState(&TestMaster_Data, Operational);
 
+  int cmd = 0;
+  int cmd_num = 0;
   printf("welcom to canopen!\n");
   printf(HELP_STRING);
+
+  e_nodeState node_state = Unknown_state;
 
   for(;;)
   {
     vTaskDelay(500);
 
+    node_state = getNodeState(&TestMaster_Data, slave_node_id);
+
+    switch (node_state)
+    {
+        case Operational:
+        {
+            int ret = scanf("%d%d", &cmd, &cmd_num);
+
+            if (ret == 2)
+            {
+                if (cmd == 1 && cmd_num == 1) // send pdo
+                {
+                    sendOnePDOevent(&TestMaster_Data, 0);
+                }
+
+                if (cmd == 2 && cmd_num > 0)
+                {
+                    for (int i = 0; i < cmd_num && i < 10; ++i)
+                    {
+                        scanf("%lu", &sdo_m2s_tx_array[i]);
+                        writeNetworkDictCallBack(&TestMaster_Data, slave_node_id, 0x2002, i + 1, 4,
+                                                 uint8, &sdo_m2s_tx_array[i], sdo_xfer_callback, 0);
+                    }
+                }
+            }
+            else
+            {
+                printf(HELP_STRING);
+            }
+        }
+            break;
+
+        case Pre_operational:
+            masterSendNMTstateChange(&TestMaster_Data, 0x01, NMT_Start_Node);
+            break;
+
+        default:
+            break;
+    }
+
     /* 应用代码 */
+#if 0
     int ret = scanf("%d%d", &cmd, &cmd_num);
 
     if (ret == 2)
@@ -121,6 +166,7 @@ static void CANOpen_App_Task(void *pvParameters)
     {
         printf(HELP_STRING);
     }
+#endif
   }
 }
 
@@ -133,6 +179,7 @@ static UNS32 rpdo1_data_handler(CO_Data *d, const indextable *table, uint8_t b_s
     /* rpdo1 */
     case 0x2000:
         printf("0x2000: %ld\n", value);
+        ++pdo_m2s_tx_data;
         break;
 
     default:
@@ -149,6 +196,11 @@ static UNS32 rsdo_param_handler(CO_Data *d, const indextable *table, uint8_t b_s
     printf("0x%04x: %ld\n", 0x2022 + b_subindex, value);
 
     return OD_SUCCESSFUL;
+}
+
+static void sdo_xfer_callback(CO_Data* d, UNS8 nodeId)
+{
+    closeSDOtransfer(d, nodeId, SDO_CLIENT);
 }
 
 /**** Copyright (C)2018 strongerHuang. All Rights Reserved **** END OF FILE ****/

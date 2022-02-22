@@ -179,9 +179,12 @@ void CAN_RX_IRQHandler(void)
 {
   static CanRxMsg RxMsg;
 
-  CAN_Receive(CANx, CAN_FIFO0, &RxMsg);
+  if (CAN_GetITStatus(CANx, CAN_IT_FMP0) == SET)
+  {
+      CAN_Receive(CANx, CAN_FIFO0, &RxMsg);
 
-  CANRcv_DataFromISR(&RxMsg);
+      CANRcv_DataFromISR(&RxMsg);
+  }
 }
 
 /************************************************

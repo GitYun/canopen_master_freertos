@@ -31,6 +31,7 @@ void CAN_GPIO_Configuration(void)
   /* “˝Ω≈≈‰÷√ */
   GPIO_InitStructure.GPIO_Pin = CAN_RX_PIN;      //Rx
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU;
+//  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
   GPIO_Init(CAN_GPIO_PORT, &GPIO_InitStructure);
 
   GPIO_InitStructure.GPIO_Pin = CAN_TX_PIN;      //Tx
@@ -40,8 +41,8 @@ void CAN_GPIO_Configuration(void)
 
   if(GPIOB == CAN_GPIO_PORT)
   {
-    GPIO_PinRemapConfig(GPIO_Remap1_CAN1 , ENABLE);
-//  GPIO_PinRemapConfig(GPIO_Remap2_CAN1 , ENABLE);
+    GPIO_PinRemapConfig(GPIO_Remap1_CAN1 , ENABLE); // Remap to PB8, PB9
+//  GPIO_PinRemapConfig(GPIO_Remap2_CAN1 , ENABLE); // Remap to PD0, PD1
   }
 }
 
@@ -71,7 +72,7 @@ void CAN_Configuration(void)
   /* ≈‰÷√CAN≤Œ ˝ */
   CAN_InitStructure.CAN_TTCM = DISABLE;
   CAN_InitStructure.CAN_ABOM = DISABLE;
-  CAN_InitStructure.CAN_AWUM = DISABLE;
+  CAN_InitStructure.CAN_AWUM = ENABLE;
   CAN_InitStructure.CAN_NART = DISABLE;
   CAN_InitStructure.CAN_RFLM = DISABLE;
   CAN_InitStructure.CAN_TXFP = DISABLE;
@@ -87,11 +88,11 @@ void CAN_Configuration(void)
   /* CANπ˝¬À≈‰÷√ */
   CAN_FilterInitStructure.CAN_FilterNumber = 0;
   CAN_FilterInitStructure.CAN_FilterMode = CAN_FilterMode_IdMask;
-  CAN_FilterInitStructure.CAN_FilterScale = CAN_FilterScale_16bit;
-  CAN_FilterInitStructure.CAN_FilterIdHigh = 0x7FF;
-  CAN_FilterInitStructure.CAN_FilterIdLow = 0x201;
-  CAN_FilterInitStructure.CAN_FilterMaskIdHigh = 0x7FF;
-  CAN_FilterInitStructure.CAN_FilterMaskIdLow = 0x0601;
+  CAN_FilterInitStructure.CAN_FilterScale = CAN_FilterScale_32bit;
+  CAN_FilterInitStructure.CAN_FilterIdHigh = 0;
+  CAN_FilterInitStructure.CAN_FilterIdLow = 0;
+  CAN_FilterInitStructure.CAN_FilterMaskIdHigh = 0;
+  CAN_FilterInitStructure.CAN_FilterMaskIdLow = 0;
   CAN_FilterInitStructure.CAN_FilterFIFOAssignment = 0;
   CAN_FilterInitStructure.CAN_FilterActivation = ENABLE;
   CAN_FilterInit(&CAN_FilterInitStructure);
